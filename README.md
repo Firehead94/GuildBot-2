@@ -12,3 +12,4 @@ These are some of the planned features expected to be implemented. As the featur
 * World Boss Timers
 * Custom call/respond commands
 * Voice channel management
+* Google Forms Reporting
