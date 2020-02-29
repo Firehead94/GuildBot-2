@@ -7,7 +7,6 @@ import logging
 MODULE_PREFIX = " default "
 RESOURCES_FOLDER = Path("default_role/")
 SETTINGS_FILE = RESOURCES_FOLDER / "settings.json"
-SETTINGS = {}
 
 class DefaultRole(commands.Cog):
 
@@ -26,6 +25,7 @@ class DefaultRole(commands.Cog):
         with SETTINGS_FILE.open() as file:
             settings = json.load(file)
         settings[ctx.guild.id] = {"role_id":role.id}
+        json.dump(settings, SETTINGS_FILE, indent=4)
 
     @commands.command(name = MODULE_PREFIX+"clear_role")
     @commands.has_permissions(administrator = True)
@@ -33,6 +33,7 @@ class DefaultRole(commands.Cog):
         with SETTINGS_FILE.open() as file:
             settings = json.load(file)
         settings[ctx.guild.id] = {"role_id":None}
+        json.dump(settings, SETTINGS_FILE, indent=4)
 
     @commands.command(name = MODULE_PREFIX+"enable")
     @commands.has_permissions(administrator = True)
@@ -40,6 +41,7 @@ class DefaultRole(commands.Cog):
         with SETTINGS_FILE.open() as file:
             settings = json.load(file)
         settings[ctx.guild.id] = {"enabled":True}
+        json.dump(settings, SETTINGS_FILE, indent=4)
 
     @commands.command(name = MODULE_PREFIX+"disable")
     @commands.has_permissions(administrator = True)
@@ -47,6 +49,7 @@ class DefaultRole(commands.Cog):
         with SETTINGS_FILE.open() as file:
             settings = json.load(file)
         settings[ctx.guild.id] = {"enabled":False}
+        json.dump(settings, SETTINGS_FILE, indent=4)
 
     @commands.command(name = MODULE_PREFIX+"toggle")
     @commands.has_permissions(administrator = True)
@@ -54,6 +57,7 @@ class DefaultRole(commands.Cog):
         with SETTINGS_FILE.open() as file:
             settings = json.load(file)
         settings[ctx.guild.id] = {"enabled":not settings[ctx.guild.id]["enabled"]}
+        json.dump(settings, SETTINGS_FILE, indent=4)
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
