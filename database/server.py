@@ -26,32 +26,5 @@ class Server:
                 return role
         return None
 
-    @property
-    def discord_data(self):
-        if "discord_data" in self.data:
-            return self.data['discord_data']
-        return False
-
-    @property
-    def twitch_data(self):
-        if "twitch_data" in self.data:
-            return self.data['twitch_data']
-        return False
-
-    @property
-    def voice_data(self):
-        if "voice_data" in self.data:
-            return self.data['voice_data']
-        return False
-
-    @property
-    def blacklist_data(self):
-        if "blacklist_data" in self.data:
-            return self.data['blacklist_data']
-        return False
-
-    @property
-    def worldboss_data(self):
-        if "worldboss_data" in self.data:
-            return self.data['worldboss_data']
-        return False
+    def __repr__(self):
+        return "Server({}, '{}', {}, {}, {}, {})".format(self.id, self.name, self.roles, self.categories, self.channels, self.data)
