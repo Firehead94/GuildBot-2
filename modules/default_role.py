@@ -24,42 +24,45 @@ class DefaultRole(commands.Cog):
             settings = json.load(SETTINGS_FILE.open())
             if str(ctx.guild.id) in settings:
                 role_id = settings[str(ctx.guild.id)]["role_id"]
-                await ctx.send("{} *is the current default role applied to new users.*".format(discord.utils.get(ctx.guild.roles, id=role_id)))
+                await ctx.send("{} *is the current default role applied to new users.*".format(discord.utils.get(ctx.guild.roles, id=role_id).mention))
             else:
                 await ctx.send("*There is no current default role applied to new users.*")
 
     @default.command(name = "set_role", pass_context=True)
     @commands.has_permissions(administrator = True)
     async def setRole(self, ctx, role: discord.Role):
-        settings = json.load(SETTINGS_FILE.open())
-        settings[ctx.guild.id] = {"role_id":role.id,"enabled":True}
-        SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
-        await ctx.send("**SETTING CHANGED:** *Default discord role applied to new users set to* {}".format(role.mention))
+        if role < ctx.author.top_role:
+            settings = json.load(SETTINGS_FILE.open())
+            settings[str(ctx.guild.id)] = {"role_id":role.id,"enabled":True}
+            SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
+            await ctx.send("**SETTING CHANGED:** *Default discord role applied to new users set to* {}.".format(role.mention))
+        else:
+            await ctx.send("**ERROR:** *You do not have high enough permissions to manage this role.*")
 
     @default.command(name = "clear_role", pass_context=True)
     @commands.has_permissions(administrator = True)
     async def clearRole(self, ctx):
         settings = json.load(SETTINGS_FILE.open())
         role_id = settings[str(ctx.guild.id)]["role_id"]
-        settings[ctx.guild.id] = {"role_id":None,"enabled":False}
+        settings[str(ctx.guild.id)] = {"role_id":None,"enabled":False}
         SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
-        await ctx.send("**SETTING CHANGED:** {} *is no longer the default discord role applied to new users".format(discord.utils.get(ctx.guild.roles, id=role_id)))
+        await ctx.send("**SETTING CHANGED:** {} *is no longer the default discord role applied to new users.*".format(discord.utils.get(ctx.guild.roles, id=role_id).mention))
 
     @default.command(name = "enable", pass_context=True)
     @commands.has_permissions(administrator = True)
     async def enable(self, ctx):
         settings = json.load(SETTINGS_FILE.open())
-        settings[ctx.guild.id]["enabled"] = True
+        settings[str(ctx.guild.id)]["enabled"] = True
         SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
-        await ctx.send("**SETTING CHANGED:** *Default role will now be applied to new users.")
+        await ctx.send("**SETTING CHANGED:** *Default role will now be applied to new users.*")
 
     @default.command(name = "disable", pass_context=True)
     @commands.has_permissions(administrator = True)
     async def disable(self, ctx):
         settings = json.load(SETTINGS_FILE.open())
-        settings[ctx.guild.id]["enabled"] = False
+        settings[str(ctx.guild.id)]["enabled"] = False
         SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
-        await ctx.send("**SETTING CHANGED:** *Default role will no longer be applied to new users.")
+        await ctx.send("**SETTING CHANGED:** *Default role will no longer be applied to new users.*")
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
