@@ -4,9 +4,9 @@ from pathlib import Path
 import json
 import logging
 
-MODULE_PREFIX = " default "
-RESOURCES_FOLDER = Path("default_role/")
+RESOURCES_FOLDER = Path("modules/default_role/")
 SETTINGS_FILE = RESOURCES_FOLDER / "settings.json"
+
 
 class DefaultRole(commands.Cog):
 
@@ -15,56 +15,66 @@ class DefaultRole(commands.Cog):
 
         # Check if first time being run
         if not Path(SETTINGS_FILE).is_file():
-            SETTINGS_FILE.mkdir()
-            with SETTINGS_FILE.open() as file:
-                json.dump({},file,indent=4)
+            RESOURCES_FOLDER.mkdir()
+            SETTINGS_FILE.write_text(json.dumps({}, indent=4), encoding='utf8')
 
-    @commands.command(name = MODULE_PREFIX+"set_role")
+    @commands.group(name = "default", pass_context=True)
+    async def default(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_cmd_help(ctx)
+
+    @default.command(name = "set_role", pass_context=True)
     @commands.has_permissions(administrator = True)
     async def setRole(self, ctx, role: discord.Role):
-        with SETTINGS_FILE.open() as file:
-            settings = json.load(file)
-        settings[ctx.guild.id] = {"role_id":role.id}
-        json.dump(settings, SETTINGS_FILE, indent=4)
+        settings = json.load(SETTINGS_FILE.open())
+        settings[ctx.guild.id] = {"role_id":role.id,"enabled":True}
+        SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
 
-    @commands.command(name = MODULE_PREFIX+"clear_role")
+    @default.command(name = "clear_role", pass_context=True)
     @commands.has_permissions(administrator = True)
     async def clearRole(self, ctx):
-        with SETTINGS_FILE.open() as file:
-            settings = json.load(file)
-        settings[ctx.guild.id] = {"role_id":None}
-        json.dump(settings, SETTINGS_FILE, indent=4)
+        settings = json.load(SETTINGS_FILE.open())
+        settings[ctx.guild.id] = {"role_id":None,"enabled":False}
+        SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
 
-    @commands.command(name = MODULE_PREFIX+"enable")
+    @default.command(name = "enable", pass_context=True)
     @commands.has_permissions(administrator = True)
     async def enable(self, ctx):
-        with SETTINGS_FILE.open() as file:
-            settings = json.load(file)
-        settings[ctx.guild.id] = {"enabled":True}
-        json.dump(settings, SETTINGS_FILE, indent=4)
+        settings = json.load(SETTINGS_FILE.open())
+        settings[ctx.guild.id]["enabled"] = True
+        SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
 
-    @commands.command(name = MODULE_PREFIX+"disable")
+    @default.command(name = "disable", pass_context=True)
     @commands.has_permissions(administrator = True)
     async def disable(self, ctx):
-        with SETTINGS_FILE.open() as file:
-            settings = json.load(file)
-        settings[ctx.guild.id] = {"enabled":False}
-        json.dump(settings, SETTINGS_FILE, indent=4)
+        settings = json.load(SETTINGS_FILE.open())
+        settings[ctx.guild.id]["enabled"] = False
+        SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
 
-    @commands.command(name = MODULE_PREFIX+"toggle")
+    @default.command(name = "toggle", pass_context=True)
     @commands.has_permissions(administrator = True)
     async def toggle(self, ctx):
-        with SETTINGS_FILE.open() as file:
-            settings = json.load(file)
-        settings[ctx.guild.id] = {"enabled":not settings[ctx.guild.id]["enabled"]}
-        json.dump(settings, SETTINGS_FILE, indent=4)
+        settings = json.load(SETTINGS_FILE.open())
+        try:
+            settings[ctx.guild.id]["enabled"] = not settings[str(ctx.guild.id)]["enabled"]
+        except:
+            settings[ctx.guild.id]["enabled"] = False
+        SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
+
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        print('Command Error: '+str(error))
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        if not member.bot:
-            with SETTINGS_FILE.open() as file:
-                settings = json.load(file)
-            await member.add_roles(discord.utils.get(self.bot.guild.roles, id=settings[self.bot.guild.id]["role_id"]))
+        settings = json.load(SETTINGS_FILE.open())
+        if not member.bot and (str(member.guild.id) in settings) and settings[str(member.guild.id)]["enabled"]:
+            SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
+            try:
+                await member.add_roles(discord.utils.get(member.guild.roles, id=settings[str(member.guild.id)]["role_id"]))
+            except KeyError:
+                pass
+
 
 def setup(bot):
     bot.add_cog(DefaultRole(bot))
