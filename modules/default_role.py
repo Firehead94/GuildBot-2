@@ -43,9 +43,13 @@ class DefaultRole(commands.Cog):
     @default.command(name = "clear_role", pass_context=True)
     @commands.has_permissions(administrator = True)
     async def clearRole(self, ctx):
+        role_id = get_setting(ctx.guild.id, "role_id")
         change_setting(ctx.guild.id, "role_id", None)
         change_setting(ctx.guild.id, "enabled", False)
-        await ctx.send("**SETTING CHANGED:** {} *is no longer the default discord role applied to new users.*".format(discord.utils.get(ctx.guild.roles, id=role_id).mention))
+        if role_id is not None:
+            await ctx.send("**SETTING CHANGED:** {} *is no longer the default discord role applied to new users.*".format(discord.utils.get(ctx.guild.roles, id=role_id).mention))
+        else:
+            await ctx.send("**ERROR:** *No default role was set.*")
 
     @default.command(name = "enable", pass_context=True)
     @commands.has_permissions(administrator = True)
@@ -72,15 +76,16 @@ class DefaultRole(commands.Cog):
             pass
 
 
-def change_setting(guild_id: str, k: str, v):
+def change_setting(guild_id, k, v):
+    guild_id = str(guild_id)
     settings = json.load(SETTINGS_FILE.open())
     settings[guild_id][k] = v
     SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
 
 
 def get_setting(guild_id: str, k: str):
+    guild_id = str(guild_id)
     settings = json.load(SETTINGS_FILE.open())
-    print(settings)
     return settings[guild_id][k]
 
 
