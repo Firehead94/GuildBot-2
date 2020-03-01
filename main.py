@@ -4,14 +4,10 @@ import os
 from os.path import isfile, join
 import discord
 from discord.ext import commands
-import logging
 from pathlib import Path
 import traceback
 
 MAIN_PREFIX = "!gb "
-LOGGER = logging.basicConfig(filename="GuildBot.log", level=logging.DEBUG)
-LOGGER_FORMATTING = logging.Formatter('%(asctime)s || %(name)s  [%(levelname)s] : %(message)s')
-
 RESOURCES_FOLDER = Path("")
 SETTINGS_FILE = RESOURCES_FOLDER / "settings.json"
 
@@ -32,7 +28,7 @@ class GuildBot(commands.Bot):
             SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
 
     async def on_command_error(self, ctx, error):
-        print('Command Error: '+str(error))
+        await ctx.send("**"+str(error)+"**")
 
     async def send_cmd_help(self, ctx):
         await ctx.send(content="No subcommand found. Please visit <https://github.com/Firehead94/RetBot> for usage information.")
