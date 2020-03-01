@@ -4,7 +4,7 @@ Version 2 of GuildBot. Includes and entire rework of its original functionality 
 
 ## Planned Features
 These are some of the planned features expected to be implemented. As the features are completed, they will me crossed off the list. 
-* Automatic role assignment using reactions.
+* ~~Automatic role assignment using reactions.~~
 * ~~Default role assignment~~
 * WoWHead/Blizzard API integration
 * Blacklist filter for chat messages
