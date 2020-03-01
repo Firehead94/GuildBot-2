@@ -4,7 +4,6 @@ import discord
 from discord.ext import commands
 from pathlib import Path
 import json
-import logging
 import typing
 
 RESOURCES_FOLDER = Path("modules/settings/")
@@ -17,8 +16,9 @@ class DefaultRole(commands.Cog):
         self.bot = bot
 
         # Check if first time being run
-        if not Path(SETTINGS_FILE).is_file():
-            RESOURCES_FOLDER.mkdir()
+        if not SETTINGS_FILE.is_file():
+            if not RESOURCES_FOLDER.is_dir():
+                RESOURCES_FOLDER.mkdir()
             SETTINGS_FILE.write_text(json.dumps({}, indent=4), encoding='utf8')
 
     @commands.group(name = "default", pass_context=True)
@@ -26,8 +26,7 @@ class DefaultRole(commands.Cog):
         if ctx.invoked_subcommand is None:
             try:
                 await ctx.send("{} *is the current default role applied to new users.*".format(discord.utils.get(ctx.guild.roles, id=get_setting(ctx.guild.id, "role_id")).mention))
-            except KeyError as e:
-                print(traceback.format_exc())
+            except:
                 await ctx.send("*There is no current default role applied to new users.*")
 
     @default.command(name = "set_role", pass_context=True)
@@ -64,10 +63,6 @@ class DefaultRole(commands.Cog):
         await ctx.send("**SETTING CHANGED:** *Default role will no longer be applied to new users.*")
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        print('Command Error: '+str(error))
-
-    @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         try:
             if not member.bot and get_setting(member.guild.id, "enabled"):
@@ -79,14 +74,24 @@ class DefaultRole(commands.Cog):
 def change_setting(guild_id, k, v):
     guild_id = str(guild_id)
     settings = json.load(SETTINGS_FILE.open())
+    if guild_id not in settings:
+        settings[guild_id] = {}
     settings[guild_id][k] = v
-    SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf8')
+    SETTINGS_FILE.write_text(json.dumps(settings, indent=4), encoding='utf-8')
 
 
-def get_setting(guild_id: str, k: str):
+def get_setting(guild_id: str, *k: str):
     guild_id = str(guild_id)
     settings = json.load(SETTINGS_FILE.open())
-    return settings[guild_id][k]
+    if guild_id in settings:
+        r = settings[guild_id]
+        try:
+            for i in k:
+                r = r[str(i)]
+            return r
+        except:
+            pass
+    return None
 
 
 def setup(bot):
