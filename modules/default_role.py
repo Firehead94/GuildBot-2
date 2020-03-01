@@ -7,8 +7,8 @@ import json
 import logging
 import typing
 
-RESOURCES_FOLDER = Path("modules/default_role/")
-SETTINGS_FILE = RESOURCES_FOLDER / "settings.json"
+RESOURCES_FOLDER = Path("modules/settings/")
+SETTINGS_FILE = RESOURCES_FOLDER / "default_role.json"
 
 
 class DefaultRole(commands.Cog):
