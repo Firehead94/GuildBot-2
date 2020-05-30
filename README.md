@@ -7,9 +7,9 @@ These are some of the planned features expected to be implemented. As the featur
 * ~~Automatic role assignment using reactions.~~
 * ~~Default role assignment~~
 * WoWHead/Blizzard API integration
-* Blacklist filter for chat messages
+* ~~Blacklist filter for chat messages~~
 * Server audit logs
-* World Boss Timers
+* Timers
 * Custom call/respond commands
 * Voice channel management
 * Google Forms Reporting
