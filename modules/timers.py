@@ -40,13 +40,13 @@ class Timers(commands.Cog):
         await ctx.send(content=None, embed=embed)
 
     @timer.command(name = "start", aliases=["Start"])
-    async def setTimer(self, ctx, time, message):
+    async def setTimer(self, ctx, time, *message):
         vals = re.split("^(?:(?:(?:([0-9]?\d):)?([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$", time)
         if len(vals) <= 1:
             await ctx.send("Incorrect Datetime format. Please use DD:HH:MM:SS, HH:MM:SS, MM:SS, SS for your timers format.")
         vals = [0 if v is None else v for v in vals]
         delta = datetime.timedelta(days=int(vals[1]), hours=int(vals[2]), minutes=int(vals[3]), seconds=int(vals[4]))
-        self.bot.timer_manager.create_timer("reminder", delta, args=(ctx.channel.id, ctx.author.id, message))
+        self.bot.timer_manager.create_timer("reminder", delta, args=(ctx.channel.id, ctx.author.id, " ".join(message[:])))
 
     @commands.Cog.listener()
     async def on_reminder(self, channel_id, author_id, msg):

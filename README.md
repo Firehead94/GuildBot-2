@@ -9,7 +9,7 @@ These are some of the planned features expected to be implemented. As the featur
 * WoWHead/Blizzard API integration
 * ~~Blacklist filter for chat messages~~
 * Server audit logs
-* Timers
+* ~~Timers~~
 * Custom call/respond commands
 * Voice channel management
 * Google Forms Reporting
